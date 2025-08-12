@@ -9,15 +9,11 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum app_user_role {
-  INSTRUCTOR
-  STUDENT
-}
-
 model app_user {
-  id   Int           @id @default(autoincrement())
-  name String        @db.VarChar(100)
-  role app_user_role
+  id       Int           @id @default(autoincrement())
+  name     String        @db.VarChar(100)
+  role     app_user_role
+  progress progress[]
 }
 
 model book {
@@ -27,10 +23,11 @@ model book {
 }
 
 model question_group {
-  id          Int    @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   step_id     Int
-  description String @db.VarChar(100)
-  step        step   @relation(fields: [step_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  description String     @db.VarChar(100)
+  progress    progress[]
+  step        step       @relation(fields: [step_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model step {
@@ -49,3 +46,30 @@ model topic {
   book    book   @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
+model progress {
+  id                 Int                         @id @default(autoincrement())
+  question_group_id  Int
+  app_user_id        Int
+  completed          progress_completed
+  in_progress_status progress_in_progress_status
+  do_need_to_ask     Boolean
+  app_user           app_user                    @relation(fields: [app_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  question_group     question_group              @relation(fields: [question_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+enum app_user_role {
+  INSTRUCTOR
+  STUDENT
+}
+
+enum progress_completed {
+  COMPLETED
+  IN_PROGRESS
+  NOT_STARTED
+}
+
+enum progress_in_progress_status {
+  PREV_HOMEWORK
+  TODAY_WORK
+  NEXT_HOMEWORK
+}
