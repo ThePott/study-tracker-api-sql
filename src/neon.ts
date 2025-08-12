@@ -1,4 +1,5 @@
 import { PrismaClient, app_user, progress } from "../generated/prisma"
+import { Progress } from "../interfaces"
 
 const prisma = new PrismaClient()
 
@@ -33,4 +34,48 @@ export const prismaAssignProgressFromBook = async (studentId: number, bookTitle:
     console.log({ resultCreateMany })
     // const book = await 
     return resultCreateMany
+}
+
+export const prismaGetAllProgress = async (studentId: number) => {
+    const result = await prisma.progress.findMany({
+        where: { app_user_id: studentId },
+        select: {
+            id: true,
+            completed: true,
+            in_progress_status: true,
+            do_need_to_ask: true,
+            question_group: {
+                select: {
+                    description: true,
+                    step: {
+                        select: {
+                            title: true,
+                            topic: {
+                                select: {
+                                    title: true,
+                                    book: { select: { title: true } }
+                                }
+                            }
+                        }
+                    }
+                },
+
+            }
+        }
+    })
+
+    const progressArray = result.map((el) => {
+        const progress: Progress = {
+            id: el.id, 
+            bookTitle: el.question_group.step.topic.book.title,
+            topicTitle: el.question_group.step.topic.title,
+            stepTitle: el.question_group.step.title,
+            questionGroupDescription: el.question_group.description,
+            completed: el.completed,
+            inProgressStatus: el.in_progress_status,
+            doNeedToAsk: el.do_need_to_ask
+        }
+        return progress
+    })
+    return progressArray
 }

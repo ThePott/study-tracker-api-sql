@@ -1,6 +1,6 @@
 import express from "express"
 import { app_user } from "../generated/prisma"
-import { prismaAssignProgressFromBook, prismaUserCreate, prismaUserFindMany } from "./neon"
+import { prismaAssignProgressFromBook, prismaGetAllProgress, prismaUserCreate, prismaUserFindMany } from "./neon"
 
 const router = express.Router()
 
@@ -31,6 +31,14 @@ router.post("/progress/student/:studentId", async (req, res) => {
     const result = await prismaAssignProgressFromBook(studentId, bookTitle)
 
     res.status(201).json(result)
+})
+
+router.get("/progress/student/:studentId", async (req, res) => {
+    const studentIdString = req.params.studentId
+    const studentId = Number(studentIdString)
+    const result = await prismaGetAllProgress(studentId)
+    console.log({result})
+    res.status(200).json(result)
 })
 
 export default router
