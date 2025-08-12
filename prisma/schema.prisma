@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -15,17 +9,13 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum UserRole {
-  STUDENT
-  INSTRUCTOR
-
-  @@map("app_user_role")
+model app_user {
+  id   Int           @id @default(autoincrement())
+  name String        @db.VarChar(100)
+  role app_user_role
 }
 
-model User {
-  id   Int      @id(map: "plugin_pkey") @default(autoincrement())
-  name String   @db.VarChar(255)
-  role UserRole
-
-  @@map("app_user")
+enum app_user_role {
+  INSTRUCTOR
+  STUDENT
 }
