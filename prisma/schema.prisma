@@ -9,13 +9,43 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum app_user_role {
+  INSTRUCTOR
+  STUDENT
+}
+
 model app_user {
   id   Int           @id @default(autoincrement())
   name String        @db.VarChar(100)
   role app_user_role
 }
 
-enum app_user_role {
-  INSTRUCTOR
-  STUDENT
+model book {
+  id    Int     @id @default(autoincrement())
+  title String  @db.VarChar(100)
+  topic topic[]
 }
+
+model question_group {
+  id          Int    @id @default(autoincrement())
+  step_id     Int
+  description String @db.VarChar(100)
+  step        step   @relation(fields: [step_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model step {
+  id             Int              @id @default(autoincrement())
+  topic_id       Int
+  title          String           @db.VarChar(100)
+  question_group question_group[]
+  topic          topic            @relation(fields: [topic_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model topic {
+  id      Int    @id @default(autoincrement())
+  book_id Int
+  title   String @db.VarChar(100)
+  step    step[]
+  book    book   @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
