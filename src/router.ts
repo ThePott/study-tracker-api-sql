@@ -37,6 +37,7 @@ router.get("/progress/student/:studentId", async (req, res) => {
     const studentIdString = req.params.studentId
     const studentId = Number(studentIdString)
     const result = await prismaGetAllProgress(studentId)
+
     console.log({result})
     res.status(200).json(result)
 })

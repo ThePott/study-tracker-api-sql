@@ -77,5 +77,7 @@ export const prismaGetAllProgress = async (studentId: number) => {
         }
         return progress
     })
-    return progressArray
+
+    const groupedProgressArray = Object.groupBy(progressArray, (progress) => progress.bookTitle)
+    return groupedProgressArray
 }
