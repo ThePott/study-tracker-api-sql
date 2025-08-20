@@ -1,6 +1,8 @@
 import cors, { CorsOptions } from "cors";
 import express from "express";
-import router from "./src/router";
+import debugRouter from "./src/routers/debugRouter";
+import manageRouter from "./src/routers/manageRouter";
+import progressRouter from "./src/routers/progressRouter";
 
 const app = express();
 app.use(express.json());
@@ -11,7 +13,9 @@ const corsOptions: CorsOptions = {
     methods: ["OPTIONS", "GET", "POST", "PATCH", "DELETE"],
 };
 app.use(cors(corsOptions));
-app.use("/", router)
+app.use("/manage", manageRouter)
+app.use("/progress", progressRouter)
+app.use("/", debugRouter)
 
 const PORT = process.env.PORT || 3456
 app.listen(PORT, () => console.log("---- neovim server is on:", PORT))
