@@ -1,13 +1,13 @@
 import express from "express"
 import { app_user } from "../generated/prisma"
-import { prismaAssignProgressFromBook, prismaGetAllProgress, prismaUserCreate, prismaUserFindMany } from "./neon"
+import { prismaAssignProgressFromBook, prismaGetAllProgress, prismaPatchProgress, prismaUserCreate, prismaUserFindMany } from "./neon"
 
 const router = express.Router()
 
 router.get("/checkhealth", async (req, res) => {
     res.status(200).json({ message: "----- health good" })
 })
-
+// manage router로 애초에 폴더를 구분하면 더 깔끔할 것
 router.get("/manage", async (req, res) => {
     const result = await prismaUserFindMany()
     res.status(200).json(result)
@@ -38,7 +38,14 @@ router.get("/progress/student/:studentId", async (req, res) => {
     const studentId = Number(studentIdString)
     const result = await prismaGetAllProgress(studentId)
 
-    console.log({result})
+    res.status(200).json(result)
+})
+
+router.patch("/progress", async (req, res) => {
+    console.log("----patching to here")
+    const { patchingPropertyName, editedDict } = req.body
+    const result = prismaPatchProgress(patchingPropertyName, editedDict)
+
     res.status(200).json(result)
 })
 

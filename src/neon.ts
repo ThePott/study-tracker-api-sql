@@ -37,6 +37,8 @@ export const prismaAssignProgressFromBook = async (studentId: number, bookTitle:
 }
 
 export const prismaGetAllProgress = async (studentId: number) => {
+    console.time('⏱ fetch timer')
+
     const result = await prisma.progress.findMany({
         where: { app_user_id: studentId },
         select: {
@@ -64,9 +66,12 @@ export const prismaGetAllProgress = async (studentId: number) => {
         }
     })
 
+    console.timeEnd('⏱ fetch timer')
+    
+    console.time('⏱ map timer')
     const progressArray = result.map((el) => {
         const progress: Progress = {
-            id: el.id, 
+            id: el.id,
             bookTitle: el.question_group.step.topic.book.title,
             topicTitle: el.question_group.step.topic.title,
             stepTitle: el.question_group.step.title,
@@ -77,7 +82,23 @@ export const prismaGetAllProgress = async (studentId: number) => {
         }
         return progress
     })
+    console.timeEnd('⏱ map timer')
 
+    console.time('⏱ group timer')
     const groupedProgressArray = Object.groupBy(progressArray, (progress) => progress.bookTitle)
+    console.timeEnd('⏱ group timer')
     return groupedProgressArray
+}
+
+export const prismaPatchProgress = async (patchingPropertyName: string, editedDict: Record<number, any>) => {
+    const entryArray = Object.entries(editedDict)
+    const promiseArray = entryArray.reduce((acc: Promise<any>[], entry) => {
+        const promise = prisma.progress.update({
+            where: { id: Number(entry[0]) },
+            data: { [patchingPropertyName]: entry[1] },
+        })
+        return [...acc, promise]
+    }, [])
+    const result = await Promise.all(promiseArray)
+    return result
 }
