@@ -31,7 +31,6 @@ export const prismaAssignProgressFromBook = async (studentId: number, bookTitle:
     }, [])
 
     const resultCreateMany = await prisma.progress.createMany({ data: progressArray })
-    console.log({ resultCreateMany })
     // const book = await 
     return resultCreateMany
 }

@@ -26,7 +26,6 @@ progressRouter.get("/student/:studentId", async (req, res) => {
 })
 
 progressRouter.patch("/", async (req, res) => {
-    console.log("----patching to here")
     const { patchingPropertyName, editedDict } = req.body
     const result = prismaPatchProgress(patchingPropertyName, editedDict)
 
