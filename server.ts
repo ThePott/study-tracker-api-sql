@@ -3,6 +3,7 @@ import express from "express";
 import debugRouter from "./src/routers/debugRouter";
 import manageRouter from "./src/routers/manageRouter";
 import progressRouter from "./src/routers/progressRouter";
+import reviewCheckRouter from "./src/routers/reviewCheckRouter";
 
 const app = express();
 app.use(express.json());
@@ -15,6 +16,7 @@ const corsOptions: CorsOptions = {
 app.use(cors(corsOptions));
 app.use("/manage", manageRouter)
 app.use("/progress", progressRouter)
+app.use("/review-check", reviewCheckRouter)
 app.use("/", debugRouter)
 
 const PORT = process.env.PORT || 3456
