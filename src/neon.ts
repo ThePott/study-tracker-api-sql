@@ -101,3 +101,7 @@ export const prismaPatchProgress = async (patchingPropertyName: string, editedDi
     const result = await Promise.all(promiseArray)
     return result
 }
+
+export const prismaReviewCheckCreateMany = async (bookId: number, reviewCheckArray: []) => {
+
+}

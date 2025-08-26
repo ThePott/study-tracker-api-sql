@@ -23,11 +23,12 @@ model book {
 }
 
 model question_group {
-  id          Int        @id @default(autoincrement())
-  step_id     Int
-  description String     @db.VarChar(100)
-  progress    progress[]
-  step        step       @relation(fields: [step_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id           Int            @id @default(autoincrement())
+  step_id      Int
+  description  String         @db.VarChar(100)
+  progress     progress[]
+  step         step           @relation(fields: [step_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  review_check review_check[]
 }
 
 model step {
@@ -55,6 +56,15 @@ model progress {
   do_need_to_ask     Boolean
   app_user           app_user                    @relation(fields: [app_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   question_group     question_group              @relation(fields: [question_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model review_check {
+  id                   Int            @id @default(autoincrement())
+  question_group_id    Int
+  question_page_number Int
+  solution_page_number Int
+  question_label       String         @db.VarChar(50)
+  question_group       question_group @relation(fields: [question_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum app_user_role {
