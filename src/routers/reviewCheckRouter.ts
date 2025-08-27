@@ -1,5 +1,5 @@
 import express from "express"
-import { prismaAssignReviewCheckFromBook } from "../neon"
+import { prismaAssignReviewCheckFromBook, prismaGetAllReviewCheck } from "../neon"
 
 const reviewCheckRouter = express.Router()
 
@@ -7,7 +7,9 @@ reviewCheckRouter.get("/student/:studentId", async (req, res) => {
     try {
         const studentIdString = req.params.studentId
         const studentId = Number(studentIdString)
-        res.status(200).json({ studentId })
+
+        const result = await prismaGetAllReviewCheck(studentId)
+        res.status(200).json(result)
     } catch (error) {}
 })
 

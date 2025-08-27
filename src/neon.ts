@@ -125,3 +125,5 @@ export const prismaAssignReviewCheckFromBook = async (studentId: number, bookTit
     // const book = await 
     return resultCreateMany
 }
+
+export const prismaGetAllReviewCheck = async (studentId: number) => prisma.review_check.findMany({where: {app_user_id: studentId}})
