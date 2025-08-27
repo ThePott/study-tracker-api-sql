@@ -1,5 +1,5 @@
 import { PrismaClient, app_user, progress, review_check, review_check_status } from "../generated/prisma"
-import { Progress } from "../interfaces"
+import { Progress, ReviewCheck } from "../interfaces"
 
 const prisma = new PrismaClient()
 
@@ -9,15 +9,17 @@ export const prismaUserCreate = async (user: app_user) => prisma.app_user.create
 
 export const prismaAssignProgressFromBook = async (studentId: number, bookTitle: string) => {
     const student = await prisma.app_user.findUnique({ where: { id: studentId } })
-    if (!student) { throw new Error("NotFoundError") }
+    if (!student) {
+        throw new Error("NotFoundError")
+    }
 
     const resultFindMany = await prisma.question_group.findMany({
         where: { step: { topic: { book: { title: bookTitle } } } },
         select: {
             // id: true, step: { select: { topic: { select: { book: { select: { title: true } } } } } }
-            id: true
-        }
-    });
+            id: true,
+        },
+    })
 
     const progressArray = resultFindMany.reduce((acc: progress[], questionGroup) => {
         const progress = {} as progress
@@ -31,12 +33,12 @@ export const prismaAssignProgressFromBook = async (studentId: number, bookTitle:
     }, [])
 
     const resultCreateMany = await prisma.progress.createMany({ data: progressArray })
-    // const book = await 
+    // const book = await
     return resultCreateMany
 }
 
 export const prismaGetAllProgress = async (studentId: number) => {
-    console.time('⏱ fetch timer')
+    console.time("⏱ fetch timer")
 
     const result = await prisma.progress.findMany({
         where: { app_user_id: studentId },
@@ -54,20 +56,19 @@ export const prismaGetAllProgress = async (studentId: number) => {
                             topic: {
                                 select: {
                                     title: true,
-                                    book: { select: { title: true } }
-                                }
-                            }
-                        }
-                    }
+                                    book: { select: { title: true } },
+                                },
+                            },
+                        },
+                    },
                 },
-
-            }
-        }
+            },
+        },
     })
 
-    console.timeEnd('⏱ fetch timer')
-    
-    console.time('⏱ map timer')
+    console.timeEnd("⏱ fetch timer")
+
+    console.time("⏱ map timer")
     const progressArray = result.map((el) => {
         const progress: Progress = {
             id: el.id,
@@ -77,15 +78,15 @@ export const prismaGetAllProgress = async (studentId: number) => {
             questionGroupDescription: el.question_group.description,
             completed: el.completed,
             inProgressStatus: el.in_progress_status,
-            doNeedToAsk: el.do_need_to_ask
+            doNeedToAsk: el.do_need_to_ask,
         }
         return progress
     })
-    console.timeEnd('⏱ map timer')
+    console.timeEnd("⏱ map timer")
 
-    console.time('⏱ group timer')
+    console.time("⏱ group timer")
     const groupedProgressArray = Object.groupBy(progressArray, (progress) => progress.bookTitle)
-    console.timeEnd('⏱ group timer')
+    console.timeEnd("⏱ group timer")
     return groupedProgressArray
 }
 
@@ -104,14 +105,16 @@ export const prismaPatchProgress = async (patchingPropertyName: string, editedDi
 
 export const prismaAssignReviewCheckFromBook = async (studentId: number, bookTitle: string) => {
     const student = await prisma.app_user.findUnique({ where: { id: studentId } })
-    if (!student) { throw new Error("NotFoundError") }
+    if (!student) {
+        throw new Error("NotFoundError")
+    }
 
     const resultFindMany = await prisma.question.findMany({
         where: { step: { topic: { book: { title: bookTitle } } } },
         select: {
-            id: true
-        }
-    });
+            id: true,
+        },
+    })
 
     const reviewCheckArray = resultFindMany.reduce((acc: review_check[], question) => {
         const review_check = {} as review_check
@@ -122,8 +125,54 @@ export const prismaAssignReviewCheckFromBook = async (studentId: number, bookTit
     }, [])
 
     const resultCreateMany = await prisma.review_check.createMany({ data: reviewCheckArray })
-    // const book = await 
+    // const book = await
     return resultCreateMany
 }
 
-export const prismaGetAllReviewCheck = async (studentId: number) => prisma.review_check.findMany({where: {app_user_id: studentId}})
+export const prismaGetAllReviewCheck = async (studentId: number) => {
+    prisma.review_check.findMany({ where: { app_user_id: studentId } })
+    const result = await prisma.review_check.findMany({
+        where: { app_user_id: studentId },
+        select: {
+            id: true,
+            status: true,
+            question: {
+                select: {
+                    question_label: true,
+                    question_page: true,
+                    step: {
+                        select: {
+                            title: true,
+                            topic: {
+                                select: {
+                                    title: true,
+                                    book: { select: { title: true } },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    })
+
+    console.time("⏱ map timer")
+    const reviewCheckArray = result.map((el) => {
+        const reviewCheck: ReviewCheck = {
+            id: el.id,
+            bookTitle: el.question.step.topic.book.title,
+            topicTitle: el.question.step.topic.title,
+            stepTitle: el.question.step.title,
+            status: el.status,
+            inProgressStatus: el.in_progress_status,
+            doNeedToAsk: el.do_need_to_ask,
+        }
+        return progress
+    })
+    console.timeEnd("⏱ map timer")
+
+    console.time("⏱ group timer")
+    const groupedProgressArray = Object.groupBy(progressArray, (progress) => progress.bookTitle)
+    console.timeEnd("⏱ group timer")
+    return groupedProgressArray
+}
