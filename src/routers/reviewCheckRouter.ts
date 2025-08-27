@@ -17,6 +17,8 @@ reviewCheckRouter.post("/student/:studentId", async (req, res) => {
         const studentIdString = req.params.studentId
         const studentId = Number(studentIdString)
         res.status(201).json({studentId})
+
+        const result = await prismaAssignReviewCheckFromBook(studentId, bookTitle)
     } catch (error) {
 
     }

@@ -10,10 +10,11 @@ datasource db {
 }
 
 model app_user {
-  id       Int           @id @default(autoincrement())
-  name     String        @db.VarChar(100)
-  role     app_user_role
-  progress progress[]
+  id           Int            @id @default(autoincrement())
+  name         String         @db.VarChar(100)
+  role         app_user_role
+  progress     progress[]
+  review_check review_check[]
 }
 
 model book {
@@ -59,12 +60,22 @@ model progress {
 }
 
 model question {
-  id             Int    @id @default(autoincrement())
+  id             Int            @id @default(autoincrement())
   step_id        Int
   question_page  Int
-  question_label String @db.VarChar(50)
-  solution_page  Int?   @default(0)
-  step           step   @relation(fields: [step_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  question_label String         @db.VarChar(50)
+  solution_page  Int?           @default(0)
+  step           step           @relation(fields: [step_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  review_check   review_check[]
+}
+
+model review_check {
+  id          Int                  @id @default(autoincrement())
+  app_user_id Int
+  question_id Int
+  status      review_check_status? @default(NOT_SOLVED)
+  app_user    app_user             @relation(fields: [app_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  question    question             @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum app_user_role {
@@ -82,4 +93,12 @@ enum progress_in_progress_status {
   PREV_HOMEWORK
   TODAY_WORK
   NEXT_HOMEWORK
+}
+
+enum review_check_status {
+  DONE
+  PASS
+  WRONG
+  CORRECT
+  NOT_SOLVED
 }

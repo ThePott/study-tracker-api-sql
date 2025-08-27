@@ -102,12 +102,29 @@ export const prismaPatchProgress = async (patchingPropertyName: string, editedDi
     return result
 }
 
-// export const prismaReviewCheckGetAll = async (studentId: number) => {
-//     const result = await prisma.review_check.findMany(
-        
-//     )
-// }
+export const prismaAssaignReviewCheckFromBook = async (studentId: number, bookTitle: string) => {
+    const student = await prisma.app_user.findUnique({ where: { id: studentId } })
+    if (!student) { throw new Error("NotFoundError") }
 
-export const prismaReviewCheckCreateMany = async (bookId: number, reviewCheckArray: []) => {
+    const resultFindMany = await prisma.question.findMany({
+        where: { step: { topic: { book: { title: bookTitle } } } },
+        select: {
+            id: true
+        }
+    });
 
+    // const reviewCheckArray = resultFindMany.reduce((acc: review_check[], questionGroup) => {
+    //     const progress = {} as progress
+    //     progress.app_user_id = studentId
+    //     progress.question_group_id = questionGroup.id
+    //     progress.completed = "NOT_STARTED"
+    //     progress.in_progress_status = "TODAY_WORK"
+    //     progress.do_need_to_ask = false
+    //     acc.push(progress)
+    //     return acc
+    // }, [])
+
+    // const resultCreateMany = await prisma.progress.createMany({ data: progressArray })
+    // // const book = await 
+    // return resultCreateMany
 }
