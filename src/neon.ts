@@ -1,4 +1,4 @@
-import { PrismaClient, app_user, progress } from "../generated/prisma"
+import { PrismaClient, app_user, progress, review_check, review_check_status } from "../generated/prisma"
 import { Progress } from "../interfaces"
 
 const prisma = new PrismaClient()
@@ -102,7 +102,7 @@ export const prismaPatchProgress = async (patchingPropertyName: string, editedDi
     return result
 }
 
-export const prismaAssaignReviewCheckFromBook = async (studentId: number, bookTitle: string) => {
+export const prismaAssignReviewCheckFromBook = async (studentId: number, bookTitle: string) => {
     const student = await prisma.app_user.findUnique({ where: { id: studentId } })
     if (!student) { throw new Error("NotFoundError") }
 
@@ -113,18 +113,15 @@ export const prismaAssaignReviewCheckFromBook = async (studentId: number, bookTi
         }
     });
 
-    // const reviewCheckArray = resultFindMany.reduce((acc: review_check[], questionGroup) => {
-    //     const progress = {} as progress
-    //     progress.app_user_id = studentId
-    //     progress.question_group_id = questionGroup.id
-    //     progress.completed = "NOT_STARTED"
-    //     progress.in_progress_status = "TODAY_WORK"
-    //     progress.do_need_to_ask = false
-    //     acc.push(progress)
-    //     return acc
-    // }, [])
+    const reviewCheckArray = resultFindMany.reduce((acc: review_check[], question) => {
+        const review_check = {} as review_check
+        review_check.app_user_id = studentId
+        review_check.question_id = question.id
+        acc.push(review_check)
+        return acc
+    }, [])
 
-    // const resultCreateMany = await prisma.progress.createMany({ data: progressArray })
-    // // const book = await 
-    // return resultCreateMany
+    const resultCreateMany = await prisma.review_check.createMany({ data: reviewCheckArray })
+    // const book = await 
+    return resultCreateMany
 }

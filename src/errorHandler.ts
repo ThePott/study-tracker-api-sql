@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 export const ErrorTypes = {
     DATABASE: 'DATABASE_ERROR',
@@ -8,7 +8,7 @@ export const ErrorTypes = {
     UNKNOWN: 'UNKNOWN_ERROR'
 };
 
-export const errorHandler = (error: Error, res: Response) => {
+export const errorHandler = (error: any, req: Request, res: Response, next: NextFunction) => {
     console.error({ error })
     console.error('---- search error based on', Object.keys(error))
 
