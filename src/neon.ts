@@ -102,11 +102,11 @@ export const prismaPatchProgress = async (patchingPropertyName: string, editedDi
     return result
 }
 
-export const prismaReviewCheckGetAll = async (studentId: number) => {
-    const result = await prisma.review_check.findMany(
+// export const prismaReviewCheckGetAll = async (studentId: number) => {
+//     const result = await prisma.review_check.findMany(
         
-    )
-}
+//     )
+// }
 
 export const prismaReviewCheckCreateMany = async (bookId: number, reviewCheckArray: []) => {
 
