@@ -129,7 +129,13 @@ export const prismaAssignReviewCheckFromBook = async (studentId: number, bookTit
     return resultCreateMany
 }
 
+/**
+ *
+ * @param studentId 여기 코드 장말 엉망임
+ * @returns 진짜진짜 엉망임
+ */
 export const prismaGetAllReviewCheck = async (studentId: number) => {
+    console.log("---- fucked up")
     prisma.review_check.findMany({ where: { app_user_id: studentId } })
     const result = await prisma.review_check.findMany({
         where: { app_user_id: studentId },
@@ -156,7 +162,6 @@ export const prismaGetAllReviewCheck = async (studentId: number) => {
         },
     })
 
-    console.time("⏱ map timer")
     const reviewCheckArray = result.map((el) => {
         const reviewCheck: ReviewCheck = {
             id: el.id,
@@ -164,15 +169,36 @@ export const prismaGetAllReviewCheck = async (studentId: number) => {
             topicTitle: el.question.step.topic.title,
             stepTitle: el.question.step.title,
             status: el.status,
-            inProgressStatus: el.in_progress_status,
-            doNeedToAsk: el.do_need_to_ask,
+            questionPage: el.question.question_page,
+            questionLabel: el.question.question_label,
         }
-        return progress
+        return reviewCheck
     })
-    console.timeEnd("⏱ map timer")
 
-    console.time("⏱ group timer")
-    const groupedProgressArray = Object.groupBy(progressArray, (progress) => progress.bookTitle)
-    console.timeEnd("⏱ group timer")
-    return groupedProgressArray
+    const reiviewCheckGroupedByBook = Object.groupBy(reviewCheckArray, (reviewCheck) => reviewCheck.bookTitle)
+    const entryArrayGroupedByBook = Object.entries(reiviewCheckGroupedByBook)
+
+    const reviewCheckGrouped = entryArrayGroupedByBook.reduce((acc: any, entry) => {
+        const array = entry[1]
+        // 아휴 진짜 못해먹겠다.
+
+        const groupedByPage = Object.groupBy(array!, (reviewCheck) => reviewCheck.questionPage)
+        acc[entry[0]] = groupedByPage
+        return acc
+    }, {})
+
+    return reviewCheckGrouped
+}
+
+export const prismaPatchReviewCheck = async (patchingPropertyName: string, editedDict: Record<number, any>) => {
+    const entryArray = Object.entries(editedDict)
+    const promiseArray = entryArray.reduce((acc: Promise<any>[], entry) => {
+        const promise = prisma.review_check.update({
+            where: { id: Number(entry[0]) },
+            data: { [patchingPropertyName]: entry[1].status },
+        })
+        return [...acc, promise]
+    }, [])
+    const result = await Promise.all(promiseArray)
+    return result
 }
