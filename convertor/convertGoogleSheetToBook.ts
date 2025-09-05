@@ -1,15 +1,15 @@
-import fs from 'fs';
+import fs from "fs";
 import path from "path";
-import { book, PrismaClient, question_group, step, topic } from '../generated/prisma';
+import { PrismaClient } from "@prisma/client";
 
-const filePath = path.join(process.cwd(), 'convertor', 'synergy-progress.txt');
-const rawData = fs.readFileSync(filePath, 'utf8');
+const filePath = path.join(process.cwd(), "convertor", "synergy-progress.txt");
+const rawData = fs.readFileSync(filePath, "utf8");
 const rowArray: string[] = rawData.split("\n");
 
 interface Atom {
-  topicTitle: string
-  stepTitle: string
-  questionGroupDescription: string
+  topicTitle: string;
+  stepTitle: string;
+  questionGroupDescription: string;
 }
 
 const operation = {
@@ -18,36 +18,47 @@ const operation = {
   atomArray: [] as Atom[],
 
   updateAtomArray(splitArray: string[]) {
-    const [questionGroupDescription, topicTitle, stepTitle, memo] = splitArray
-    if (topicTitle) { this.topicTitle = topicTitle }
-    if (stepTitle) { this.stepTitle = stepTitle }
+    const [questionGroupDescription, topicTitle, stepTitle, memo] = splitArray;
+    if (topicTitle) {
+      this.topicTitle = topicTitle;
+    }
+    if (stepTitle) {
+      this.stepTitle = stepTitle;
+    }
 
-    if (!this.topicTitle || !this.stepTitle) { throw new Error("---- WHY NULL TITLE?") }
+    if (!this.topicTitle || !this.stepTitle) {
+      throw new Error("---- WHY NULL TITLE?");
+    }
 
-    const atom: Atom = { topicTitle: this.topicTitle, stepTitle: this.stepTitle, questionGroupDescription }
+    const atom: Atom = {
+      topicTitle: this.topicTitle,
+      stepTitle: this.stepTitle,
+      questionGroupDescription,
+    };
 
-    this.atomArray.push(atom)
-  }
-}
+    this.atomArray.push(atom);
+  },
+};
 
 const convertGoogleSheetToAtomArray = (bookTitle: string) => {
   rowArray.forEach((row) => {
-    const splitArray = row.split("\t")
-    if (splitArray.length !== 4) { return }
-    operation.updateAtomArray(splitArray)
-  })
+    const splitArray = row.split("\t");
+    if (splitArray.length !== 4) {
+      return;
+    }
+    operation.updateAtomArray(splitArray);
+  });
 
-  const atomArray = [...operation.atomArray]
-  return atomArray
+  const atomArray = [...operation.atomArray];
+  return atomArray;
 };
 
 // convertGoogleSheetToAtomArray("마플 시너지 수학(상)")
 
-
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 const pushGoogleSheetToNeon = async (bookTitle: string) => {
-  const atomArray = convertGoogleSheetToAtomArray(bookTitle)
+  const atomArray = convertGoogleSheetToAtomArray(bookTitle);
 
   // const book = { title: bookTitle } as book
   // const bookResult = await prisma.book.create({ data: book })
@@ -105,11 +116,9 @@ const pushGoogleSheetToNeon = async (bookTitle: string) => {
 
   // const stepTitleArray = Object.keys(Object.groupBy(atomArray, (atom) => atom.stepTitle))
   // console.table(stepTitleArray)
+};
 
-
-}
-
-pushGoogleSheetToNeon("마플 시너지 수학(상)")
+pushGoogleSheetToNeon("마플 시너지 수학(상)");
 /**
 npx ts-node convertor/convertGoogleSheetToBook.ts
  */
