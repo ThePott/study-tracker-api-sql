@@ -1,5 +1,10 @@
 import { PrismaClient } from "@prisma/client";
-import { app_user, progress, review_check } from "../generated/prisma";
+import {
+  app_user,
+  progress,
+  progress_completed,
+  review_check,
+} from "../generated/prisma";
 import { Progress, ReviewCheck } from "../interfaces";
 
 const prisma = new PrismaClient();
@@ -80,19 +85,31 @@ export const prismaGetAllProgress = async (studentId: number) => {
   console.timeEnd("⏱ fetch timer");
 
   console.time("⏱ map timer");
-  const progressArray = result.map((el) => {
-    const progress: Progress = {
-      id: el.id,
-      bookTitle: el.question_group.step.topic.book.title,
-      topicTitle: el.question_group.step.topic.title,
-      stepTitle: el.question_group.step.title,
-      questionGroupDescription: el.question_group.description,
-      completed: el.completed,
-      inProgressStatus: el.in_progress_status,
-      doNeedToAsk: el.do_need_to_ask,
-    };
-    return progress;
-  });
+  const progressArray: Progress[] = result.map(
+    (
+      el: progress & {
+        question_group: {
+          description: string;
+          step: {
+            title: string;
+            topic: { title: string; book: { title: string } };
+          };
+        };
+      },
+    ) => {
+      const progress: Progress = {
+        id: el.id,
+        bookTitle: el.question_group.step.topic.book.title,
+        topicTitle: el.question_group.step.topic.title,
+        stepTitle: el.question_group.step.title,
+        questionGroupDescription: el.question_group.description,
+        completed: el.completed,
+        inProgressStatus: el.in_progress_status,
+        doNeedToAsk: el.do_need_to_ask,
+      };
+      return progress;
+    },
+  );
   console.timeEnd("⏱ map timer");
 
   console.time("⏱ group timer");
